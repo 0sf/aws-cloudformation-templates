@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Version 1</title>
+  </head>
+  <body>
+    <h2>You are currently in Version 1</h2>
+    <button id="btnVersionTwo">Version2</button>
+
+    <script>
+      const btnVersionTwo = document.getElementById("btnVersionTwo");
+      btnVersionTwo.addEventListener("click", () => {
+        document.cookie = "version=two";
+        location.reload();
+      });
+    </script>
+  </body>
+</html>
