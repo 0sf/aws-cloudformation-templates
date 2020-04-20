@@ -1,0 +1,258 @@
+AWSTemplateFormatVersion: 2010-09-09
+Metadata:
+  'AWS::CloudFormation::Designer':
+    55e241dc-eafa-43d7-84ab-e97fc94de66c:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -440
+        'y': -320
+      z: 0
+      embeds: []
+    897f9dd3-81ed-43eb-9c96-ee3fef3b6551:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -440
+        'y': -240
+      z: 0
+      embeds: []
+    b91da456-8cff-4b4c-8a4d-3432903afc93:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -290
+        'y': -320
+      z: 0
+      embeds: []
+      dependson:
+        - 55e241dc-eafa-43d7-84ab-e97fc94de66c
+    319fbd3b-c3be-43c5-9080-cc206bd585d6:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -290
+        'y': -240
+      z: 0
+      embeds: []
+      dependson:
+        - 897f9dd3-81ed-43eb-9c96-ee3fef3b6551
+    18b4f28e-7bae-4711-96e7-e304b3267e56:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -560
+        'y': -400
+      z: 0
+      embeds: []
+    e6a787bc-8413-4fdc-9b03-5b4cde7297be:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -560
+        'y': -320
+      z: 0
+      embeds: []
+    f2173edc-2c09-4acd-9f1c-8cf39210229c:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -680
+        'y': -300
+      z: 0
+      embeds: []
+    cae4a1ba-aa6f-49bd-971b-93d6ab6cd703:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -760
+        'y': -220
+      z: 0
+      embeds: []
+    356045d3-20ad-4f6a-8003-cfa6a75c628d:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -680
+        'y': -400
+      z: 0
+      embeds: []
+      dependson:
+        - f2173edc-2c09-4acd-9f1c-8cf39210229c
+Resources:
+  cfoaizzz:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Ref BucketOne
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: e6a787bc-8413-4fdc-9b03-5b4cde7297be
+    DependsOn:
+      - BucketOne
+  iamrole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: cae4a1ba-aa6f-49bd-971b-93d6ab6cd703
+  BucketOne:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Ref BucketOneName
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+      VersioningConfiguration:
+        Status: Enabled
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 55e241dc-eafa-43d7-84ab-e97fc94de66c
+  BucketTwo:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Ref BucketTwoName
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+      VersioningConfiguration:
+        Status: Enabled
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 897f9dd3-81ed-43eb-9c96-ee3fef3b6551
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 3600
+          LambdaFunctionAssociations:
+            - EventType: origin-request
+              LambdaFunctionARN: !Ref LambdaVersion
+          ForwardedValues:
+            Cookies:
+              Forward: whitelist
+              WhitelistedNames:
+                - version
+            QueryString: false
+          MaxTTL: 86400
+          MinTTL: 60
+          TargetOriginId: s3origin
+          ViewerProtocolPolicy: allow-all
+        Enabled: true
+        HttpVersion: http2
+        Origins:
+          - DomainName: !GetAtt BucketOne.DomainName
+            Id: s3origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${cfoaizzz}'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 18b4f28e-7bae-4711-96e7-e304b3267e56
+    DependsOn:
+      - BucketOne
+  BucketOnePolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref BucketOne
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicRead
+            Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+            Resource:
+              - !Sub '${BucketOne.Arn}/*'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: b91da456-8cff-4b4c-8a4d-3432903afc93
+    DependsOn:
+      - BucketOne
+  BucketTwoPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref BucketTwo
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicRead
+            Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+            Resource:
+              - !Sub '${BucketTwo.Arn}/*'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 319fbd3b-c3be-43c5-9080-cc206bd585d6
+    DependsOn:
+      - BucketTwo
+  LambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: |
+        Lambda at Edge function to 
+      Code:
+        ZipFile: |
+          console.log("Hello World!");
+      Handler: index.handler
+      MemorySize: 128
+      Role: !GetAtt iamrole.Arn
+      Runtime: nodejs12.x
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: f2173edc-2c09-4acd-9f1c-8cf39210229c
+  LambdaVersion:
+    Type: 'AWS::Lambda::Version'
+    Properties:
+      FunctionName: !Ref LambdaFunction
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 356045d3-20ad-4f6a-8003-cfa6a75c628d
+    DependsOn:
+      - LambdaFunction
+Parameters:
+  BucketOneName:
+    Type: String
+    Default: firstbucketname
+  BucketTwoName:
+    Type: String
+    Default: secondbucketname
+  CodeBucketName:
+    Type: String
+    Default: codebucketlambda
