@@ -42,6 +42,3 @@ exports.handler = (event, context, callback) => {
     return;
   }
 };
-
-
-// 	d3bck4t5p2hriy.cloudfront.net
