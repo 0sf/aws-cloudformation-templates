@@ -6,8 +6,8 @@ exports.handler = (event, context, callback) => {
   const reactVersion = "version=react";
   const angularVersion = "version=angular";
 
-  const reactVersionDomain = "vesiononebucket3101.s3-website-us-east-1.amazonaws.com";
-  const angularVersionDomain = "angularVersionbucket3101.s3-website-us-east-1.amazonaws.com";
+  const reactVersionDomain = "";
+  const angularVersionDomain = "";
 
   let domain = "";
 
